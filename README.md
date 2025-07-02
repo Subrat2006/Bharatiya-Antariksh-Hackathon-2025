@@ -23,3 +23,10 @@ python -m venv venv
 source ./venv/bin/activate
 pip install -r requirements.txt
 ```
+Make your own .env file with the following syntax
+```env
+MOSDAC_SFTP_USERNAME = <Your Username>
+MOSDAC_SFTP_PASSWORD = <your Password>
+```
+All the files which you have ordered using MOSDAC will be downloaded into data folder.  
+When you graph the data, it'll be saved in output folder. 
