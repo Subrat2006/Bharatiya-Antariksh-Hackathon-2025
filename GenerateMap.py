@@ -48,25 +48,23 @@ base_time = datetime.datetime(2000, 1, 1, 0, 0, 0)
 # Add the minutes
 dt = base_time + datetime.timedelta(minutes=minutes_since_2000)
 
-# Paths to save image
-plasma_img_path = os.path.join('output', 'tir1_bt_map.png')
-grayscale_img_path = os.path.join('output', 'tir1_bt_cloud_bw.png')
-
 preprocess_time_end = time.time()
 
-# Uncomment to plot in plasma
-plt.figure(figsize=(16, 16))
-ax = plt.axes(projection=ccrs.Orthographic(central_longitude=82.5, central_latitude=0))
-ax.coastlines()
-sc = ax.scatter(flat_lon, flat_lat, c=flat_bt, cmap='plasma', s=0.5, transform=ccrs.PlateCarree())
-plt.colorbar(sc, label='Brightness Temperature (K)')
-plt.title(f'INSAT-3DR TIR1 Brightness Temperature\n{dt.strftime("%Y-%m-%d %H:%M UTC")}')
-plt.tight_layout()
-plt.savefig(plasma_img_path, dpi=300, bbox_inches='tight')
+# # Uncomment to plot in plasma
+# plasma_img_path = os.path.join('output', 'tir1_bt_map.png')
+# plt.figure(figsize=(16, 16))
+# ax = plt.axes(projection=ccrs.Orthographic(central_longitude=82.5, central_latitude=0))
+# ax.coastlines()
+# sc = ax.scatter(flat_lon, flat_lat, c=flat_bt, cmap='plasma', s=0.5, transform=ccrs.PlateCarree())
+# plt.colorbar(sc, label='Brightness Temperature (K)')
+# plt.title(f'INSAT-3DR TIR1 Brightness Temperature\n{dt.strftime("%Y-%m-%d %H:%M UTC")}')
+# plt.tight_layout()
+# plt.savefig(plasma_img_path, dpi=300, bbox_inches='tight')
 
 plasma_graph_end = time.time()
 
 # Plot in greyscale
+grayscale_img_path = os.path.join('output', 'tir1_bt_cloud_bw.png')
 norm = mcolors.Normalize(vmin=330, vmax=180) 
 plt.figure(figsize=(16, 16))
 ax = plt.axes(projection=ccrs.Orthographic(central_longitude=82.5, central_latitude=0))
@@ -75,7 +73,6 @@ ax.gridlines(draw_labels=True, linestyle='--', color='gray')
 sc = ax.scatter(flat_lon, flat_lat, c=flat_bt, cmap='Greys', s=0.5, norm=norm, transform=ccrs.PlateCarree())
 plt.colorbar(sc, label='Brightness Temperature (K)', shrink=0.6, pad=0.05)
 plt.title(f'INSAT-3DR TIR1 Brightness Temperature\n(Cloud Enhancement - Grayscale)\n{dt.strftime("%Y-%m-%d %H:%M UTC")}', fontsize=14)
-plt.tight_layout()
 plt.savefig(grayscale_img_path, dpi=300)
 
 grayscale_graph_end = time.time()
