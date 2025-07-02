@@ -1,3 +1,7 @@
+# To ignore images generated and data using which operations are done
+output
+data
+
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
 
