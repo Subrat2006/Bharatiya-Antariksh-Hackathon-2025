@@ -1,34 +1,95 @@
+import paramiko
 import os
-import requests
-DATA_DIR = "insat_data"
+import time
+from dotenv import load_dotenv
 
-def download_insat_file(year, month, day, time_utc):
-    os.makedirs(DATA_DIR, exist_ok=True)
-    file_name = f"INSAT3D_IRBRT_{year}{month}{day}_{time_utc}.H5"
-    local_file_path = os.path.join(DATA_DIR, file_name)
+load_dotenv()
 
-    if os.path.exists(local_file_path):
-        print(f"✔️ File already exists: {file_name}. Skipping download.")
-        return local_file_path
+def download_latest_file():
+    hostname = 'download.mosdac.gov.in'
+    username = os.getenv('MOSDAC_SFTP_USERNAME')
+    password = os.getenv('MOSDAC_SFTP_PASSWORD')
+    remote_dir = '/Order'
+    local_dir = './data'
 
-    print(f"⬇️ Downloading: {file_name}...")
-    try:
-        url = f"https://example-data-source.com/{year}/{month}/{day}/{file_name}"
-        
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
+    os.makedirs(local_dir, exist_ok=True)
 
-        with open(local_file_path, 'wb') as f:
-            f.write(response.content)
-        
-        print(f"✅ Download complete: {file_name}")
-        return local_file_path
+    transport = paramiko.Transport((hostname, 22))
+    transport.connect(username=username, password=password)
+    sftp = paramiko.SFTPClient.from_transport(transport)
 
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Failed to download {file_name}. Error: {e}")
-        return None
+    start = time.time()
 
-#Example:
-if __name__ == "__main__":
-    download_insat_file("2024", "07", "01", "1200")
-    download_insat_file("2024", "07", "01", "1200")
+    folders = sorted(
+        [f for f in sftp.listdir_attr(remote_dir) if not f.filename.startswith('.')], 
+        key=lambda f: f.st_mtime,
+        reverse=True
+    )
+
+    latest_folder = folders[0]
+    latest_folder_remote_path = f"{remote_dir}/{latest_folder.filename}"
+
+    files = sorted(
+        [f for f in sftp.listdir_attr(latest_folder_remote_path) if not f.filename.startswith('.')], 
+        key=lambda f: f.st_mtime,
+        reverse=True
+    )
+
+    file = files[0]
+    file_remote_path = f"{latest_folder_remote_path}/{file.filename}"
+    file_local_path = os.path.join(local_dir, file.filename)
+    print(f"Downloading {file_remote_path} ...")
+    if os.path.exists(file_local_path):
+        print("File already exists\n")
+    else:
+        sftp.get(file_remote_path, file_local_path)
+        end = time.time()
+        print(str(latest_folder.filename) + ' -> ' + str(file.filename) + ' : ' + str(end - start) + ' sec download time\n')
+
+    sftp.close()
+    transport.close()
+    print("Download complete.\n")
+    return file.filename
+
+def download_all_files():
+    hostname = 'download.mosdac.gov.in'
+    username = os.getenv('MOSDAC_SFTP_USERNAME')
+    password = os.getenv('MOSDAC_SFTP_PASSWORD')
+    remote_dir = '/Order'
+    local_dir = './data'
+
+    os.makedirs(local_dir, exist_ok=True)
+
+    transport = paramiko.Transport((hostname, 22))
+    transport.connect(username=username, password=password)
+    sftp = paramiko.SFTPClient.from_transport(transport)
+
+    folders = sorted(
+        [f for f in sftp.listdir_attr(remote_dir) if not f.filename.startswith('.')], 
+        key=lambda f: f.st_mtime,
+        reverse=True
+    )
+
+    for folder in folders:
+        start = time.time()
+        folder_remote_path = f"{remote_dir}/{folder.filename}"
+
+        files = sorted(
+            [f for f in sftp.listdir_attr(folder_remote_path) if not f.filename.startswith('.')], 
+            key=lambda f: f.st_mtime,
+            reverse=True
+        )
+
+        for file in files:
+            file_remote_path = f"{folder_remote_path}/{file.filename}"
+            file_local_path = os.path.join(local_dir, file.filename)
+            print(f"Downloading {file_remote_path} ...")
+            sftp.get(file_remote_path, file_local_path)
+            end = time.time()
+            print(str(folder.filename) + ' -> ' + str(file.filename) + ' : ' + str(end - start) + ' sec download time\n')
+            start = end
+
+    sftp.close()
+    transport.close()
+
+    print("Download complete.\n")
