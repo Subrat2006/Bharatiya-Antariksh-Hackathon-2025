@@ -47,7 +47,7 @@ def download_latest_file():
         print(str(latest_folder.filename) + ' -> ' + str(file.filename) + ' : ' + str(end - start) + ' sec download time\n')
 
     sftp.close()
-    transport.close()
+    transport.close() 
     print("Download complete.\n")
     return file.filename
 
