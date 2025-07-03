@@ -55,21 +55,24 @@ def generate_grayscale_map(filename):
 
     print('Generating map...\n')
 
-    # Plot in greyscale
-    grayscale_img_path = os.path.join('output', 'grayscale_' + str(filename) + '.png')
-    norm = mcolors.Normalize(vmin=330, vmax=180)
-    plt.figure(figsize=(16, 16))
-    ax = plt.axes(projection=ccrs.Orthographic(central_longitude=82.5, central_latitude=0))
-    ax.coastlines(resolution='50m')
-    ax.gridlines(draw_labels=True, linestyle='--', color='gray')
-    sc = ax.scatter(flat_lon, flat_lat, c=flat_bt, cmap='Greys', s=0.5, norm=norm, transform=ccrs.PlateCarree())
-    plt.colorbar(sc, label='Brightness Temperature (K)', shrink=0.6, pad=0.05)
-    plt.title(f'INSAT-3DR TIR1 Brightness Temperature\n(Cloud Enhancement - Grayscale)\n{dt.strftime("%Y-%m-%d %H:%M UTC")}', fontsize=14)
-    plt.savefig(grayscale_img_path, dpi=300)
+    if os.path.exists(os.path.join('output', 'grayscale_' + str(filename) + '.png')):
+        print("Grayscale map already exists\n")
+    else:
+        # Plot in greyscale
+        grayscale_img_path = os.path.join('output', 'grayscale_' + str(filename) + '.png')
+        norm = mcolors.Normalize(vmin=330, vmax=180)
+        plt.figure(figsize=(16, 16))
+        ax = plt.axes(projection=ccrs.Orthographic(central_longitude=82.5, central_latitude=0))
+        ax.coastlines(resolution='50m')
+        ax.gridlines(draw_labels=True, linestyle='--', color='gray')
+        sc = ax.scatter(flat_lon, flat_lat, c=flat_bt, cmap='Greys', s=0.5, norm=norm, transform=ccrs.PlateCarree())
+        plt.colorbar(sc, label='Brightness Temperature (K)', shrink=0.6, pad=0.05)
+        plt.title(f'INSAT-3DR TIR1 Brightness Temperature\n(Cloud Enhancement - Grayscale)\n{dt.strftime("%Y-%m-%d %H:%M UTC")}', fontsize=14)
+        plt.savefig(grayscale_img_path, dpi=300)
 
-    grayscale_graph_end = time.time()
+        grayscale_graph_end = time.time()
 
-    print(f'''Done!!!
+        print(f'''Done!!!
 Preprocessing Time: {preprocess_time_end - preprocess_time_start} sec
 Greyscale Graph Time: {grayscale_graph_end - preprocess_time_end} sec\n''')
 
@@ -121,19 +124,22 @@ def generate_plasma_map(filename):
 
     print('Generating map...\n')
 
-    # Plot in plasma
-    plasma_img_path = os.path.join('output', 'plasma_' + str(filename) + '.png')
-    plt.figure(figsize=(16, 16))
-    ax = plt.axes(projection=ccrs.Orthographic(central_longitude=82.5, central_latitude=0))
-    ax.coastlines()
-    sc = ax.scatter(flat_lon, flat_lat, c=flat_bt, cmap='plasma', s=0.5, transform=ccrs.PlateCarree())
-    plt.colorbar(sc, label='Brightness Temperature (K)')
-    plt.title(f'INSAT-3DR TIR1 Brightness Temperature\n{dt.strftime("%Y-%m-%d %H:%M UTC")}')
-    plt.tight_layout()
-    plt.savefig(plasma_img_path, dpi=300, bbox_inches='tight')
+    if os.path.exists(os.path.join('output', 'grayscale_' + str(filename) + '.png')):
+        print("Plasma map already exists\n")
+    else:
+        # Plot in plasma
+        plasma_img_path = os.path.join('output', 'plasma_' + str(filename) + '.png')
+        plt.figure(figsize=(16, 16))
+        ax = plt.axes(projection=ccrs.Orthographic(central_longitude=82.5, central_latitude=0))
+        ax.coastlines()
+        sc = ax.scatter(flat_lon, flat_lat, c=flat_bt, cmap='plasma', s=0.5, transform=ccrs.PlateCarree())
+        plt.colorbar(sc, label='Brightness Temperature (K)')
+        plt.title(f'INSAT-3DR TIR1 Brightness Temperature\n{dt.strftime("%Y-%m-%d %H:%M UTC")}')
+        plt.tight_layout()
+        plt.savefig(plasma_img_path, dpi=300, bbox_inches='tight')
 
-    plasma_graph_end = time.time()
+        plasma_graph_end = time.time()
 
-    print(f'''Done!!!
+        print(f'''Done!!!
 Preprocessing Time: {preprocess_time_end - preprocess_time_start} sec
 Plasma Graph Time: {plasma_graph_end - preprocess_time_end} sec\n''')

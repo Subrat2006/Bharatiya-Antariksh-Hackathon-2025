@@ -39,10 +39,12 @@ def download_latest_file():
     file_remote_path = f"{latest_folder_remote_path}/{file.filename}"
     file_local_path = os.path.join(local_dir, file.filename)
     print(f"Downloading {file_remote_path} ...")
-    sftp.get(file_remote_path, file_local_path)
-
-    end = time.time()
-    print(str(latest_folder.filename) + ' -> ' + str(file.filename) + ' : ' + str(end - start) + ' sec download time\n')
+    if os.path.exists(file_local_path):
+        print("File already exists\n")
+    else:
+        sftp.get(file_remote_path, file_local_path)
+        end = time.time()
+        print(str(latest_folder.filename) + ' -> ' + str(file.filename) + ' : ' + str(end - start) + ' sec download time\n')
 
     sftp.close()
     transport.close()
